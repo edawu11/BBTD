@@ -2,7 +2,7 @@
 Data and code for paper: Reconstruction of gene regulatory networks for *Caenorhabditis elegans* using tree-shaped gene expression data.
 <img src="./figure/integration.jpg">
 # Data
-All real datasets involved in the paper can be downloaded from here. Please put the downloaded `data` file in the root path.
+All real datasets involved in the paper can be downloaded from [here](https://drive.google.com/drive/folders/1D30eKEmbjgK0ZbnU7BUctfFuAhspKPM7?usp=sharing). Please download this repository and put the downloaded `data` file in the root path.
 
 # Tutorial
 We provide a tutorial of our work for reproducibility. Please see `./docs/Tutorial.html`.

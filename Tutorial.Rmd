@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
   fig.align = 'center',
   fig.show="asis", 
   fig.align="center", 
-  out.width = "60%",
+  out.width = "80%",
   message = FALSE,
   warning = FALSE,
   eval = FALSE)
@@ -35,6 +35,14 @@ library(purrr) # Functional Programming Tools
 library(snowfall) # Easier Cluster Computing (Based on 'snow')
 library(Matrix) # Sparse and Dense Matrix Classes and Methods
 library(hash) # Full Featured Implementation of Hash Tables/Associative
+library(igraph) # Network Analysis and Visualization
+library(ggraph) # An Implementation of Grammar of Graphics for Graphs and Networks
+library(RColorBrewer) # ColorBrewer Palettes
+library(ggtext) # Improved Text Rendering Support for 'ggplot2'
+library(lemon) # Freshing Up your 'ggplot2' Plots
+library(ggpubr) # 'ggplot2' Based Publication Ready Plots
+library(caret) # Classification and Regression Training
+library(cowplot) # Streamlined Plot Theme and Plot Annotations for 'ggplot2'
 ```
 
 # Set parameters
@@ -56,6 +64,7 @@ kasd = 0.01
 hufilepath = "./data/use_data/184onset/"
 oldfilepath = "./data/use_data/184rawdata/"
 expdatapath = "./data/expdata/"
+figurepath = "./figure/"
 realresultmainpath = "./real_result/"
 if(!dir.exists(realresultmainpath)){
   dir.create(realresultmainpath)
@@ -80,8 +89,7 @@ if(!dir.exists(simuresultmainpath)){
 
 # R function
 ```{r}
-source("./code/geneSampleFun.R")
-source("./code/preScreenFun_BB.R")
+source("./code/preScreenFun.R")
 source("./code/dataIntegrationFun.R")
 ```
 
@@ -126,9 +134,10 @@ for(numk in 1:5){
 }
 ```
 
-# BBTD
+# BBTD for real datasets
 ## Pre-screening process
 ```{r}
+p=1 # set seed
 for(numk in 1:5){
   subtree = allsubtree[numk]
   realpath = paste("./data/real_data/readydata/",subtree,"/",sep="")
@@ -152,7 +161,7 @@ for(numk in 1:5){
   diffData(finaldata,finalinfo,allchooserow,subtree,p,realpath)
   lastvalueFun(p,selectgene,allchooserow,finalinfo,maxdelta,eachdelta,newallhash,realpath)
   preScreen(aijindex,selectgene,finaldata,finalinfo,allchooserow,realaijmat,
-                              maxdelta_time,Mc,theta,ifallpvalue=T,ifreal=T,realpath,p=1,subtree,newallhash)
+                              maxdelta_time,Mc,theta,ifallpvalue=T,ifreal=T,realpath,p,subtree,newallhash)
 }
 ```
 
@@ -178,4 +187,19 @@ realMCMC(subtree,p,mcmcnum,num_maxiters=4,iters=2,betasd,alphasd,lambdasd,kasd,m
 sfStop()
 ```
 
-
+## Network visualization
+```{r}
+p=1 # set seed
+for(numk in 1:5){
+  subtree = allsubtree[numk]
+  thisindex = allindex[numk]
+  connect = allrelationfun(subtree,p,realpath,realresultpath)
+  assign(paste("g",numk,sep=""),networkFun(subtree,connect,indexnum,maxdelta_time,realpath,resultpath,picturepath) +theme(legend.position = "none"))
+}
+legend = g_legend(g1 + theme(legend.position='right'))
+ggarrange(g1,g2,g3,g4,g5,legend)
+ggsave(file = paste(figurepath,"network.pdf",sep=""),
+       width = 52,
+       height = 30,
+       units = "cm")
+```

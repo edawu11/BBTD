@@ -1,0 +1,181 @@
+---
+knit: (function(inputFile, encoding) {
+  rmarkdown::render(inputFile, encoding = encoding, output_dir ="docs") })
+title: "Tutorial"
+author: "WU Yida"
+date: "`r format(Sys.Date())`"
+CJKmainfont: SimSun
+output: 
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: vignette
+    number_sections: yes
+    toc: yes
+    toc_depth: 3
+---
+
+```{r setup,include = FALSE}
+knitr::opts_chunk$set(
+  fig.align = 'center',
+  fig.show="asis", 
+  fig.align="center", 
+  out.width = "60%",
+  message = FALSE,
+  warning = FALSE,
+  eval = FALSE)
+```
+
+# R package
+```{r}
+library(dplyr) # A Grammar of Data Manipulation
+library(tidyr) # Tidy Messy Data
+library(readr) # Read Rectangular Text Data
+library(stringr) # Simple, Consistent Wrappers for Common String Operations
+library(purrr) # Functional Programming Tools
+library(snowfall) # Easier Cluster Computing (Based on 'snow')
+library(Matrix) # Sparse and Dense Matrix Classes and Methods
+library(hash) # Full Featured Implementation of Hash Tables/Associative
+```
+
+# Set parameters
+```{r}
+allsubtree = c("AB","C","D","E","MS")
+maxdelta_time = 5
+theta = 0.05
+mcmcnum = 5
+num_maxiters = 20000
+iters = 500
+betasd = 0.1
+alphasd = 0.1
+lambdasd = 0.1
+kasd = 0.01
+```
+
+# Set path
+```{r}
+hufilepath = "./data/use_data/184onset/"
+oldfilepath = "./data/use_data/184rawdata/"
+expdatapath = "./data/expdata/"
+realresultmainpath = "./real_result/"
+if(!dir.exists(realresultmainpath)){
+  dir.create(realresultmainpath)
+  for(sub_dir in allsubtree){
+    output_dir=file.path(realresultmainpath,sub_dir)
+    if (!dir.exists(output_dir)){
+    dir.create(output_dir)
+    }
+  }
+}
+simuresultmainpath = "./simu_result/"
+if(!dir.exists(simuresultmainpath)){
+  dir.create(simuresultmainpath)
+  for(sub_dir in allsubtree){
+    output_dir=file.path(simuresultmainpath,sub_dir)
+    if (!dir.exists(output_dir)){
+    dir.create(output_dir)
+    }
+  }
+}
+```
+
+# R function
+```{r}
+source("./code/geneSampleFun.R")
+source("./code/preScreenFun_BB.R")
+source("./code/dataIntegrationFun.R")
+```
+
+# Data preparation and integration
+## Data preparation
+Use the gene expression onset cells with their descendants in each raw data file.
+```{r}
+allfilename = read_csv(file="data/filenameinfo.csv")
+oldfilename = allfilename$oldfilename
+hufilename = allfilename$hufilename
+newfilename = allfilename$newfilename
+sapply(1:184,express_data,oldfilename,hufilename,newfilename,hufilepath,oldfilepath,expdatapath)
+```
+
+## Data integration
+```{r}
+for(numk in 1:5){
+  subtree = allsubtree[numk]
+  realpath = paste("./data/real_data/readydata/",subtree,"/",sep="")
+  allchoosedata = cellnumStat(subtree,expdatapath,realpath)
+  allfilename = read_csv(file="data/filenameinfo.csv")
+  usedata = read_csv(file=paste(realpath,"all_",subtree,"_cell.csv",sep=""),show_col_types = FALSE)
+  geneCopyFun(subtree,usedata,allfilename,realpath)
+  load(file=paste(realpath,subtree,"_simu_info.RData",sep=""))
+  genecopy_h = simu_info$genecopy
+  genename = simu_info$genename
+  copyname = simu_info$copyname
+  cellname = simu_info$cellname
+  Mc = simu_info$Mc
+  interData(cellname,copyname,Mc,expdatapath,subtree,maxdelta_time,realpath)
+  load(paste(realpath,subtree,"_allfun.RData",sep=""))
+  realdata = read.csv(file = paste(realpath,subtree,"_",maxdelta_time,"_condata.csv",sep=""),
+                      check.names=FALSE)
+  realdata = as_tibble(realdata)
+  hashData(allfun,realdata,copyname,cellname,maxdelta_time,Mc,realpath,subtree)
+  load(paste(realpath,subtree,"_",maxdelta_time,"_allhash.RData",sep=""))
+  computeM(allhash,subtree,maxdelta_time,realpath)
+  load(paste(realpath,subtree,"_M_",maxdelta_time,"_.RData",sep=""))
+  GeneDataset = realdata[,-c(1:6)]
+  InfoDataset = realdata[,c(1:6)]
+  mergeCopyFun(allhash,genecopy_h,M,realdata,GeneDataset,InfoDataset,subtree,deletecellrate,deletegenerate,copyname,cellname,mergerate,realpath)
+}
+```
+
+# BBTD
+## Pre-screening process
+```{r}
+for(numk in 1:5){
+  subtree = allsubtree[numk]
+  realpath = paste("./data/real_data/readydata/",subtree,"/",sep="")
+  load(file=paste(realpath,subtree,"_simu_info.RData",sep=""))
+  Mc = simu_info$Mc
+  eachdelta = 1/(round(Mc)-1)
+  maxdelta = maxdelta_time*eachdelta
+  newdata = read_csv(file=paste(realpath,"mer_",subtree,"_",maxdelta_time,"_selectdata.csv",sep=""),show_col_types = FALSE)
+  finalinfo = newdata[,1:6]
+  finaldata = newdata[,-c(1:6)]
+  finaldata = map_dfc(finaldata,function(x) replace_na(x,0))
+  selectgene = names(finaldata)
+  load(paste(realpath,"mer_",subtree,"_",maxdelta_time,"_allchooserow.RData",sep=""))
+  load(paste(realpath,"mer_",subtree,"_",maxdelta_time,"_origenehash.RData",sep=""))
+  aijindex = list()
+  for(i in 1:length(selectgene)){
+    aijindex[[i]] = setdiff(1:length(selectgene),i)
+  }
+  names(aijindex) = selectgene
+  realaijmat = 1
+  diffData(finaldata,finalinfo,allchooserow,subtree,p,realpath)
+  lastvalueFun(p,selectgene,allchooserow,finalinfo,maxdelta,eachdelta,newallhash,realpath)
+  preScreen(aijindex,selectgene,finaldata,finalinfo,allchooserow,realaijmat,
+                              maxdelta_time,Mc,theta,ifallpvalue=T,ifreal=T,realpath,p=1,subtree,newallhash)
+}
+```
+
+## MCMC
+```{r}
+p=1 # set seed
+subtree = "D" #"C","D","E","MS"
+realpath = paste("./data/readydata/",subtree,"/",sep="")
+realresultpath = paste("./real_result/",subtree,"/",sep="")
+sfInit(parallel = TRUE, cpus = mcmcnum)
+sfLibrary(hash)
+sfLibrary(truncnorm)
+sfLibrary(Matrix)
+sfLibrary(dplyr)
+sfLibrary(tidyr)
+sfLibrary(readr)
+sfLibrary(stringr)
+sfLibrary(purrr)
+sfSource("./code/mainMCMCFun.R")
+sfSource("./code/priorsFun.R")
+sfSource("./code/estimateFun.R")
+realMCMC(subtree,p,mcmcnum,num_maxiters=4,iters=2,betasd,alphasd,lambdasd,kasd,maxdelta_time,realpath,realresultpath)
+sfStop()
+```
+
+

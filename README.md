@@ -5,7 +5,7 @@ Data and code for paper: Reconstruction of gene regulatory networks for *Caenorh
 All real datasets involved in the paper can be downloaded from [here](https://drive.google.com/drive/folders/1D30eKEmbjgK0ZbnU7BUctfFuAhspKPM7?usp=sharing). Please download this repository and put the downloaded `data` file in the root path.
 
 # Tutorial
-We provide a tutorial of our work for reproducibility. Please see `./docs/Tutorial.html`.
+We provide a tutorial document of our work for reproducibility. Please see `./docs/Tutorial.html`.
 
 # License
 BBTD is licensed under the GNU General Public License v3.0.

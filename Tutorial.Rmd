@@ -1,7 +1,7 @@
 ---
 knit: (function(inputFile, encoding) {
   rmarkdown::render(inputFile, encoding = encoding, output_dir ="docs") })
-title: "Tutorial"
+title: "Tutorial Document"
 author: "WU Yida"
 date: "`r format(Sys.Date())`"
 CJKmainfont: SimSun
@@ -24,6 +24,8 @@ knitr::opts_chunk$set(
   warning = FALSE,
   eval = FALSE)
 ```
+
+This tutorial document is used to reproduce the results of **real data**.
 
 # R package
 ```{r}
@@ -61,10 +63,11 @@ kasd = 0.01
 
 # Set path
 ```{r}
-hufilepath = "./data/use_data/184onset/"
-oldfilepath = "./data/use_data/184rawdata/"
+hufilepath = "./data/184onset/"
+oldfilepath = "./data/184rawdata/"
 expdatapath = "./data/expdata/"
 figurepath = "./figure/"
+readypath = "./data/readydata/"
 realresultmainpath = "./real_result/"
 if(!dir.exists(realresultmainpath)){
   dir.create(realresultmainpath)
@@ -89,13 +92,13 @@ if(!dir.exists(simuresultmainpath)){
 
 # R function
 ```{r}
-source("./code/preScreenFun.R")
-source("./code/dataIntegrationFun.R")
+source("./code/dataIntegrationFun.R") # for data integration
+source("./code/preScreenFun.R") # for pre-screening process
 ```
 
 # Data preparation and integration
 ## Data preparation
-Use the gene expression onset cells with their descendants in each raw data file.
+Choose the gene expression onset cells with their descendants in each raw data file.
 ```{r}
 allfilename = read_csv(file="data/filenameinfo.csv")
 oldfilename = allfilename$oldfilename
@@ -105,10 +108,11 @@ sapply(1:184,express_data,oldfilename,hufilename,newfilename,hufilepath,oldfilep
 ```
 
 ## Data integration
+After running the below code, we acquire five binary pairwise time series subtree datasets which are stored in the `readypath`. For a comprehensive overview of these five subtree datasets, please refer to Table 1 in the paper.
 ```{r}
 for(numk in 1:5){
   subtree = allsubtree[numk]
-  realpath = paste("./data/real_data/readydata/",subtree,"/",sep="")
+  realpath = paste(readypath,subtree,"/",sep="")
   allchoosedata = cellnumStat(subtree,expdatapath,realpath)
   allfilename = read_csv(file="data/filenameinfo.csv")
   usedata = read_csv(file=paste(realpath,"all_",subtree,"_cell.csv",sep=""),show_col_types = FALSE)
@@ -140,7 +144,7 @@ for(numk in 1:5){
 p=1 # set seed
 for(numk in 1:5){
   subtree = allsubtree[numk]
-  realpath = paste("./data/real_data/readydata/",subtree,"/",sep="")
+  realpath = paste(readypath,subtree,"/",sep="")
   load(file=paste(realpath,subtree,"_simu_info.RData",sep=""))
   Mc = simu_info$Mc
   eachdelta = 1/(round(Mc)-1)
@@ -168,8 +172,8 @@ for(numk in 1:5){
 ## MCMC
 ```{r}
 p=1 # set seed
-subtree = "D" #"C","D","E","MS"
-realpath = paste("./data/readydata/",subtree,"/",sep="")
+subtree = "AB" #"C","D","E","MS"
+realpath = paste(readypath,subtree,"/",sep="")
 realresultpath = paste("./real_result/",subtree,"/",sep="")
 sfInit(parallel = TRUE, cpus = mcmcnum)
 sfLibrary(hash)
@@ -183,11 +187,12 @@ sfLibrary(purrr)
 sfSource("./code/mainMCMCFun.R")
 sfSource("./code/priorsFun.R")
 sfSource("./code/estimateFun.R")
-realMCMC(subtree,p,mcmcnum,num_maxiters=4,iters=2,betasd,alphasd,lambdasd,kasd,maxdelta_time,realpath,realresultpath)
+realMCMC(subtree,p,mcmcnum,num_maxiters,iters,betasd,alphasd,lambdasd,kasd,maxdelta_time,realpath,realresultpath)
 sfStop()
 ```
 
 ## Network visualization
+After running the below code, we can get Fiture 5 in the paper.
 ```{r}
 p=1 # set seed
 for(numk in 1:5){

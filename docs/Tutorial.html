@@ -12,9 +12,9 @@
 
 <meta name="author" content="WU Yida" />
 
-<meta name="date" content="2024-01-20" />
+<meta name="date" content="2024-01-21" />
 
-<title>Tutorial</title>
+<title>Tutorial Document</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -152,9 +152,9 @@ code span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 <section class="page-header">
-<h1 class="title toc-ignore project-name">Tutorial</h1>
+<h1 class="title toc-ignore project-name">Tutorial Document</h1>
 <h4 class="author project-author">WU Yida</h4>
-<h4 class="date project-date">2024-01-20</h4>
+<h4 class="date project-date">2024-01-21</h4>
 </section>
 
 
@@ -170,18 +170,19 @@ code span.er { color: #a61717; background-color: #e3d2d2; }
 <li><a href="#data-preparation" id="toc-data-preparation"><span class="toc-section-number">5.1</span> Data preparation</a></li>
 <li><a href="#data-integration" id="toc-data-integration"><span class="toc-section-number">5.2</span> Data integration</a></li>
 </ul></li>
-<li><a href="#bbtd" id="toc-bbtd"><span class="toc-section-number">6</span> BBTD</a>
+<li><a href="#bbtd-for-real-datasets" id="toc-bbtd-for-real-datasets"><span class="toc-section-number">6</span> BBTD for real datasets</a>
 <ul>
 <li><a href="#pre-screening-process" id="toc-pre-screening-process"><span class="toc-section-number">6.1</span> Pre-screening process</a></li>
 <li><a href="#mcmc" id="toc-mcmc"><span class="toc-section-number">6.2</span> MCMC</a></li>
+<li><a href="#network-visualization" id="toc-network-visualization"><span class="toc-section-number">6.3</span> Network visualization</a></li>
 </ul></li>
-<li><a href="#network-visualization" id="toc-network-visualization"><span class="toc-section-number">7</span>
-Network visualization</a></li>
 </ul>
 </div>
 </div>
 
 <section class="main-content">
+<p>This tutorial document is used to reproduce the results of
+<strong>real data</strong>.</p>
 <div id="r-package" class="section level1" number="1">
 <h1><span class="header-section-number">1</span> R package</h1>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(dplyr) <span class="co"># A Grammar of Data Manipulation</span></span>
@@ -216,43 +217,43 @@ Network visualization</a></li>
 </div>
 <div id="set-path" class="section level1" number="3">
 <h1><span class="header-section-number">3</span> Set path</h1>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>hufilepath <span class="ot">=</span> <span class="st">&quot;./data/use_data/184onset/&quot;</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>oldfilepath <span class="ot">=</span> <span class="st">&quot;./data/use_data/184rawdata/&quot;</span></span>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>hufilepath <span class="ot">=</span> <span class="st">&quot;./data/184onset/&quot;</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>oldfilepath <span class="ot">=</span> <span class="st">&quot;./data/184rawdata/&quot;</span></span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>expdatapath <span class="ot">=</span> <span class="st">&quot;./data/expdata/&quot;</span></span>
 <span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>figurepath <span class="ot">=</span> <span class="st">&quot;./figure/&quot;</span></span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>realresultmainpath <span class="ot">=</span> <span class="st">&quot;./real_result/&quot;</span></span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">dir.exists</span>(realresultmainpath)){</span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>  <span class="fu">dir.create</span>(realresultmainpath)</span>
-<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>  <span class="cf">for</span>(sub_dir <span class="cf">in</span> allsubtree){</span>
-<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>    output_dir<span class="ot">=</span><span class="fu">file.path</span>(realresultmainpath,sub_dir)</span>
-<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">dir.exists</span>(output_dir)){</span>
-<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>    <span class="fu">dir.create</span>(output_dir)</span>
-<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>    }</span>
-<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>  }</span>
-<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>}</span>
-<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>simuresultmainpath <span class="ot">=</span> <span class="st">&quot;./simu_result/&quot;</span></span>
-<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">dir.exists</span>(simuresultmainpath)){</span>
-<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a>  <span class="fu">dir.create</span>(simuresultmainpath)</span>
-<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a>  <span class="cf">for</span>(sub_dir <span class="cf">in</span> allsubtree){</span>
-<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a>    output_dir<span class="ot">=</span><span class="fu">file.path</span>(simuresultmainpath,sub_dir)</span>
-<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">dir.exists</span>(output_dir)){</span>
-<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a>    <span class="fu">dir.create</span>(output_dir)</span>
-<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a>    }</span>
-<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a>  }</span>
-<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a>}</span></code></pre></div>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>readypath <span class="ot">=</span> <span class="st">&quot;./data/readydata/&quot;</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>realresultmainpath <span class="ot">=</span> <span class="st">&quot;./real_result/&quot;</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">dir.exists</span>(realresultmainpath)){</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>  <span class="fu">dir.create</span>(realresultmainpath)</span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>  <span class="cf">for</span>(sub_dir <span class="cf">in</span> allsubtree){</span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>    output_dir<span class="ot">=</span><span class="fu">file.path</span>(realresultmainpath,sub_dir)</span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">dir.exists</span>(output_dir)){</span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>    <span class="fu">dir.create</span>(output_dir)</span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>    }</span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>  }</span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>}</span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a>simuresultmainpath <span class="ot">=</span> <span class="st">&quot;./simu_result/&quot;</span></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">dir.exists</span>(simuresultmainpath)){</span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a>  <span class="fu">dir.create</span>(simuresultmainpath)</span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a>  <span class="cf">for</span>(sub_dir <span class="cf">in</span> allsubtree){</span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a>    output_dir<span class="ot">=</span><span class="fu">file.path</span>(simuresultmainpath,sub_dir)</span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">dir.exists</span>(output_dir)){</span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a>    <span class="fu">dir.create</span>(output_dir)</span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a>    }</span>
+<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a>  }</span>
+<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a>}</span></code></pre></div>
 </div>
 <div id="r-function" class="section level1" number="4">
 <h1><span class="header-section-number">4</span> R function</h1>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;./code/geneSampleFun.R&quot;</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;./code/preScreenFun_BB.R&quot;</span>)</span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;./code/dataIntegrationFun.R&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;./code/dataIntegrationFun.R&quot;</span>) <span class="co"># for data integration</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;./code/preScreenFun.R&quot;</span>) <span class="co"># for pre-screening process</span></span></code></pre></div>
 </div>
 <div id="data-preparation-and-integration" class="section level1" number="5">
 <h1><span class="header-section-number">5</span> Data preparation and
 integration</h1>
 <div id="data-preparation" class="section level2" number="5.1">
 <h2><span class="header-section-number">5.1</span> Data preparation</h2>
-<p>Use the gene expression onset cells with their descendants in each
+<p>Choose the gene expression onset cells with their descendants in each
 raw data file.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>allfilename <span class="ot">=</span> <span class="fu">read_csv</span>(<span class="at">file=</span><span class="st">&quot;data/filenameinfo.csv&quot;</span>)</span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>oldfilename <span class="ot">=</span> allfilename<span class="sc">$</span>oldfilename</span>
@@ -262,9 +263,13 @@ raw data file.</p>
 </div>
 <div id="data-integration" class="section level2" number="5.2">
 <h2><span class="header-section-number">5.2</span> Data integration</h2>
+<p>After running the below code, we acquire five binary pairwise time
+series subtree datasets which are stored in the <code>readypath</code>.
+For a comprehensive overview of these five subtree datasets, please
+refer to Table 1 in the paper.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="cf">for</span>(numk <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>){</span>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  subtree <span class="ot">=</span> allsubtree[numk]</span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  realpath <span class="ot">=</span> <span class="fu">paste</span>(<span class="st">&quot;./data/real_data/readydata/&quot;</span>,subtree,<span class="st">&quot;/&quot;</span>,<span class="at">sep=</span><span class="st">&quot;&quot;</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  realpath <span class="ot">=</span> <span class="fu">paste</span>(readypath,subtree,<span class="st">&quot;/&quot;</span>,<span class="at">sep=</span><span class="st">&quot;&quot;</span>)</span>
 <span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  allchoosedata <span class="ot">=</span> <span class="fu">cellnumStat</span>(subtree,expdatapath,realpath)</span>
 <span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>  allfilename <span class="ot">=</span> <span class="fu">read_csv</span>(<span class="at">file=</span><span class="st">&quot;data/filenameinfo.csv&quot;</span>)</span>
 <span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>  usedata <span class="ot">=</span> <span class="fu">read_csv</span>(<span class="at">file=</span><span class="fu">paste</span>(realpath,<span class="st">&quot;all_&quot;</span>,subtree,<span class="st">&quot;_cell.csv&quot;</span>,<span class="at">sep=</span><span class="st">&quot;&quot;</span>),<span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
@@ -290,15 +295,16 @@ raw data file.</p>
 <span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a>}</span></code></pre></div>
 </div>
 </div>
-<div id="bbtd" class="section level1" number="6">
-<h1><span class="header-section-number">6</span> BBTD</h1>
+<div id="bbtd-for-real-datasets" class="section level1" number="6">
+<h1><span class="header-section-number">6</span> BBTD for real
+datasets</h1>
 <div id="pre-screening-process" class="section level2" number="6.1">
 <h2><span class="header-section-number">6.1</span> Pre-screening
 process</h2>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>p<span class="ot">=</span><span class="dv">1</span> <span class="co"># set seed</span></span>
 <span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="cf">for</span>(numk <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>){</span>
 <span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  subtree <span class="ot">=</span> allsubtree[numk]</span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>  realpath <span class="ot">=</span> <span class="fu">paste</span>(<span class="st">&quot;./data/real_data/readydata/&quot;</span>,subtree,<span class="st">&quot;/&quot;</span>,<span class="at">sep=</span><span class="st">&quot;&quot;</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>  realpath <span class="ot">=</span> <span class="fu">paste</span>(readypath,subtree,<span class="st">&quot;/&quot;</span>,<span class="at">sep=</span><span class="st">&quot;&quot;</span>)</span>
 <span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>  <span class="fu">load</span>(<span class="at">file=</span><span class="fu">paste</span>(realpath,subtree,<span class="st">&quot;_simu_info.RData&quot;</span>,<span class="at">sep=</span><span class="st">&quot;&quot;</span>))</span>
 <span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  Mc <span class="ot">=</span> simu_info<span class="sc">$</span>Mc</span>
 <span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>  eachdelta <span class="ot">=</span> <span class="dv">1</span><span class="sc">/</span>(<span class="fu">round</span>(Mc)<span class="sc">-</span><span class="dv">1</span>)</span>
@@ -325,8 +331,8 @@ process</h2>
 <div id="mcmc" class="section level2" number="6.2">
 <h2><span class="header-section-number">6.2</span> MCMC</h2>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>p<span class="ot">=</span><span class="dv">1</span> <span class="co"># set seed</span></span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>subtree <span class="ot">=</span> <span class="st">&quot;D&quot;</span> <span class="co">#&quot;C&quot;,&quot;D&quot;,&quot;E&quot;,&quot;MS&quot;</span></span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>realpath <span class="ot">=</span> <span class="fu">paste</span>(<span class="st">&quot;./data/readydata/&quot;</span>,subtree,<span class="st">&quot;/&quot;</span>,<span class="at">sep=</span><span class="st">&quot;&quot;</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>subtree <span class="ot">=</span> <span class="st">&quot;AB&quot;</span> <span class="co">#&quot;C&quot;,&quot;D&quot;,&quot;E&quot;,&quot;MS&quot;</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>realpath <span class="ot">=</span> <span class="fu">paste</span>(readypath,subtree,<span class="st">&quot;/&quot;</span>,<span class="at">sep=</span><span class="st">&quot;&quot;</span>)</span>
 <span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>realresultpath <span class="ot">=</span> <span class="fu">paste</span>(<span class="st">&quot;./real_result/&quot;</span>,subtree,<span class="st">&quot;/&quot;</span>,<span class="at">sep=</span><span class="st">&quot;&quot;</span>)</span>
 <span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="fu">sfInit</span>(<span class="at">parallel =</span> <span class="cn">TRUE</span>, <span class="at">cpus =</span> mcmcnum)</span>
 <span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="fu">sfLibrary</span>(hash)</span>
@@ -340,13 +346,13 @@ process</h2>
 <span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a><span class="fu">sfSource</span>(<span class="st">&quot;./code/mainMCMCFun.R&quot;</span>)</span>
 <span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a><span class="fu">sfSource</span>(<span class="st">&quot;./code/priorsFun.R&quot;</span>)</span>
 <span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a><span class="fu">sfSource</span>(<span class="st">&quot;./code/estimateFun.R&quot;</span>)</span>
-<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a><span class="fu">realMCMC</span>(subtree,p,mcmcnum,<span class="at">num_maxiters=</span><span class="dv">4</span>,<span class="at">iters=</span><span class="dv">2</span>,betasd,alphasd,lambdasd,kasd,maxdelta_time,realpath,realresultpath)</span>
+<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a><span class="fu">realMCMC</span>(subtree,p,mcmcnum,num_maxiters,iters,betasd,alphasd,lambdasd,kasd,maxdelta_time,realpath,realresultpath)</span>
 <span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a><span class="fu">sfStop</span>()</span></code></pre></div>
 </div>
-</div>
-<div id="network-visualization" class="section level1" number="7">
-<h1><span class="header-section-number">7</span> Network
-visualization</h1>
+<div id="network-visualization" class="section level2" number="6.3">
+<h2><span class="header-section-number">6.3</span> Network
+visualization</h2>
+<p>After running the below code, we can get Fiture 5 in the paper.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>p<span class="ot">=</span><span class="dv">1</span> <span class="co"># set seed</span></span>
 <span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="cf">for</span>(numk <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>){</span>
 <span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  subtree <span class="ot">=</span> allsubtree[numk]</span>
@@ -360,6 +366,7 @@ visualization</h1>
 <span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a>       <span class="at">width =</span> <span class="dv">52</span>,</span>
 <span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a>       <span class="at">height =</span> <span class="dv">30</span>,</span>
 <span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a>       <span class="at">units =</span> <span class="st">&quot;cm&quot;</span>)</span></code></pre></div>
+</div>
 </div>
 </section>
 

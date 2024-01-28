@@ -199,12 +199,12 @@ for(numk in 1:5){
   subtree = allsubtree[numk]
   thisindex = allindex[numk]
   connect = allrelationfun(subtree,p,realpath,realresultpath)
-  assign(paste("g",numk,sep=""),networkFun(subtree,connect,indexnum,maxdelta_time,realpath,resultpath,picturepath) +theme(legend.position = "none"))
+  assign(paste("g",numk,sep=""),networkFun(subtree,connect,maxdelta_time,realpath) +theme(legend.position = "none"))
 }
 legend = g_legend(g1 + theme(legend.position='right'))
-ggarrange(g1,g2,g3,g4,g5,legend)
-ggsave(file = paste(figurepath,"network.pdf",sep=""),
-       width = 52,
-       height = 30,
-       units = "cm")
+plot_grid(g1,g2,g3,g4,g5,legend,labels = c('(a)','(b)','(c)','(d)','(e)'),nrow=2,label_size=14,hjust=0,scale=1)
+ggsave(file = paste("./figure/network.pdf",sep=""),
+       width = 240,
+       height = 180,
+       units = "mm")
 ```

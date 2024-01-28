@@ -36,7 +36,7 @@ allrelationFun = function(subtree,p,realpath,realresultpath){
 }
 
 # (2) networkFun ----------------------------------------------------------
-networkFun = function(subtree,connect,indexnum,maxdelta_time,realpath,resultpath,picturepath){
+networkFun = function(subtree,connect,maxdelta_time,realpath){
   newdata = read_csv(file=paste(realpath,"mer_",subtree,"_",maxdelta_time,"_selectdata.csv",sep=""),show_col_types = FALSE)
   finalinfo = newdata[,1:6]
   finaldata = newdata[,-c(1:6)]
@@ -65,15 +65,15 @@ networkFun = function(subtree,connect,indexnum,maxdelta_time,realpath,resultpath
     geom_edge_arc(aes(edge_colour=factor(predelta,levels=c(0,1,2,3,4,5)),
                       linetype = factor(preaij,levels=c(1,-1))), edge_alpha=0.8, 
                   edge_width=0.6,
-                  arrow = arrow(length = unit(4, "mm"),type="open",ends= "last"),
-                  start_cap = square(3, 'mm'),
-                  end_cap = circle(3, 'mm'))+
+                  arrow = arrow(length = unit(1.5, "mm"),type="open",ends= "last"),
+                  start_cap = square(1.5, 'mm'),
+                  end_cap = circle(1.5, 'mm'))+
     scale_edge_linetype_manual(values = c("solid","dashed"),labels = c("Positive","Negative"),drop=F)+
     scale_edge_color_manual(values=mycolor,
                             labels=c("0",expression(Delta*t),expression(2*Delta*t),
                                      expression(3*Delta*t),expression(4*Delta*t),
                                      expression(5*Delta*t)),drop=F) +
-    geom_node_text(aes(x = x*1.16, y=y*1.16, label=name, angle=angle,hjust=hjust),size=5,fontface='bold')+
+    geom_node_text(aes(x = x*1.16, y=y*1.16, label=name, angle=angle,hjust=hjust),size=3,fontface='bold')+
     geom_node_point(aes(shape = 1), fill = "#ffa400",shape=21,size=3,
                     color='#ffa400',alpha=0.6) +
     scale_size_continuous(range=c(0.5,10)) +
@@ -87,13 +87,10 @@ networkFun = function(subtree,connect,indexnum,maxdelta_time,realpath,resultpath
          edge_linetype="Regulation types"
     )+
     theme(
-      legend.title = element_text(colour='black', size = 18,face="bold"),
-      legend.text = element_text(margin = margin(l = 10),colour="black", size = 15,face="bold",hjust = 0),
+      legend.title = element_text(colour='black', size = 14,face="bold"),
+      legend.text = element_text(colour="black", size = 12,face="bold",hjust = 0),
       legend.direction = 'vertical',
       legend.box.background = element_rect(fill=NA,color = "black",linetype = 1),
-      legend.key.width = unit(20,"pt"),
-      legend.key.height = unit(20, "pt"),
-      legend.margin = margin(t = 10, r = 15, b = 10, l = 15),
       panel.grid = element_blank(),
       axis.line = element_blank(),
       axis.ticks =element_blank(),
@@ -103,12 +100,6 @@ networkFun = function(subtree,connect,indexnum,maxdelta_time,realpath,resultpath
       panel.spacing=unit(c(0,0,0,0), "null"))+
     annotate("text", x = 0, y = 0,
              label = paste(subtree),
-             colour = "black",size=10,fontface = "bold")+
-    annotate("richtext", x = -2, y = 1.2,
-             label = indexnum,
-             colour = "black",size=10,
-             label.colour = NA,
-             fill = NA,fontface = "bold")
-  
+             colour = "black",size=10,fontface = "bold")
   return(g)
 }

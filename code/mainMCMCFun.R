@@ -26,8 +26,7 @@ mainMCMC = function(iters,genenum,genename,lastvaluelist,newallhash,
   alllogprior = singleAijPrior(genenum,updatelambda,updateka)
   
   for(t_iter in 1:iters){
-    
-
+      
     updatetwo = updateTwoMat(updateaijmat,updatebeta,updatedelta,maxdelta,eachdelta,
                               
                               alllogprior,GoalDataset,InfoDataset,statdiff,allchooserow,allstartrow,
@@ -41,23 +40,23 @@ mainMCMC = function(iters,genenum,genename,lastvaluelist,newallhash,
     updatedelta = updatetwo[[2]]
     
     betatemp = updateBeta(updatebeta,betasd,updateaijmat,updatedelta,
-                           
+
                            GoalDataset,InfoDataset,statdiff,allchooserow,allstartrow,genename,genenum,lastvaluelist,
-                           
+
                            oldcell,oldtime,newallhash,eachdelta,
-                           
+
                            yesalpha,noalpha)
-    
+
     updatebeta = betatemp[[1]]
     betaaccept = betatemp[[2]]
     acc_beta = acc_beta+betaaccept
-    
+
     alphatemp = updateAlpha(updatealpha,alphasd,updateaijmat,updatedelta,updatebeta,
-                             
+
                              GoalDataset,InfoDataset,statdiff,allchooserow,allstartrow,genename,genenum,lastvaluelist,
-                             
+
                              oldcell,oldtime,newallhash,eachdelta)
-    
+
     updatealpha = alphatemp[[1]]
     alphaaccept = alphatemp[[2]]
     acc_alpha = acc_alpha+alphaaccept
@@ -73,7 +72,7 @@ mainMCMC = function(iters,genenum,genename,lastvaluelist,newallhash,
     updateka = katemp[[1]]
     kaaccept = katemp[[2]]
     acc_ka = acc_ka+kaaccept
-    
+
     alllogprior = singleAijPrior(genenum,updatelambda,updateka)
     
     allprob[t_iter] = postProb(updateaijmat,updatedelta,updatebeta,updatealpha,
@@ -104,7 +103,7 @@ mainMCMC = function(iters,genenum,genename,lastvaluelist,newallhash,
 
 # (2) transExp ------------------------------------------------------------
 transExp = function(x){
-  if(any(x<(-700))){
+  if(all(x<(-700))){
     x_max = max(x)
     x_diff = (-50) - x_max
     y = x + x_diff
@@ -149,49 +148,49 @@ noZeroProb = function(lastvaluelist,singlegene,deltaindex,useaijvec,nozeroindex,
 
 
 # (4) singleK ------------------------------------------------------------
-singleK = function(k,oldtime,oldcell,nozeroindex,genename,choosedelta,
-                       
-                       newallhash,useaijvec,GoalDataset,singlegene,lastrow,
-                       
-                       yesalpha,noalpha,updatebeta){
-  thistime = oldtime[k]
-  thiscell = oldcell[k]
-  ini_point = floor(thistime)
-  lastvalue = rep(0,length(nozeroindex))
-  for(j in 1:length(nozeroindex)){
-    geneindex = nozeroindex[j]
-    origene = genename[geneindex]
-    lasttime = round(thistime - choosedelta[j],3)
-    if(lasttime<ini_point){
-      lastcell = str_sub(thiscell,1,nchar(thiscell)-1)
-      thish = newallhash[[origene]][[lastcell]]
-    }
-    else{
-      thish = newallhash[[origene]][[thiscell]]
-    }
-
-    if(is.null(thish)){
-      lastvalue[j] = 0
-    }
-    else if(length(intersect(keys(thish),as.character(lasttime)))==0){
-      lastvalue[j] = 0
-    }
-    else{
-      lastvalue[j] = values(thish,lasttime)
-    }
-  }
-
-  H_m=as.numeric(useaijvec[nozeroindex]%*%lastvalue)
-  
-  if(H_m==0){
-    thislastrow = lastrow[k]
-    lny = ifelse((GoalDataset[[singlegene]][k]==GoalDataset[[singlegene]][thislastrow]),yesalpha,noalpha)
-  }
-  else{
-    lny = 2*updatebeta*GoalDataset[[singlegene]][k]*H_m-log(exp(2*updatebeta*H_m)+1)
-  }
-  return(lny)
-}
+# singleK = function(k,oldtime,oldcell,nozeroindex,genename,choosedelta,
+# 
+#                        newallhash,useaijvec,GoalDataset,singlegene,lastrow,
+# 
+#                        yesalpha,noalpha,updatebeta){
+#   thistime = oldtime[k]
+#   thiscell = oldcell[k]
+#   ini_point = floor(thistime)
+#   lastvalue = rep(0,length(nozeroindex))
+#   for(j in 1:length(nozeroindex)){
+#     geneindex = nozeroindex[j]
+#     origene = genename[geneindex]
+#     lasttime = round(thistime - choosedelta[j],3)
+#     if(lasttime<ini_point){
+#       lastcell = str_sub(thiscell,1,nchar(thiscell)-1)
+#       thish = newallhash[[origene]][[lastcell]]
+#     }
+#     else{
+#       thish = newallhash[[origene]][[thiscell]]
+#     }
+# 
+#     if(is.null(thish)){
+#       lastvalue[j] = 0
+#     }
+#     else if(length(intersect(keys(thish),as.character(lasttime)))==0){
+#       lastvalue[j] = 0
+#     }
+#     else{
+#       lastvalue[j] = values(thish,lasttime)
+#     }
+#   }
+# 
+#   H_m=as.numeric(useaijvec[nozeroindex]%*%lastvalue)
+# 
+#   if(H_m==0){
+#     thislastrow = lastrow[k]
+#     lny = ifelse((GoalDataset[[singlegene]][k]==GoalDataset[[singlegene]][thislastrow]),yesalpha,noalpha)
+#   }
+#   else{
+#     lny = 2*updatebeta*GoalDataset[[singlegene]][k]*H_m-log(exp(2*updatebeta*H_m)+1)
+#   }
+#   return(lny)
+# }
 
 
 
@@ -204,19 +203,19 @@ singleLikelihood = function(singlegene,updateaijmat,updatedelta,updatebeta,
                             
                             oldcell,oldtime,eachdelta,
                             
-                            newallhash,rowAijsum,
+                            newallhash,rowaijsum,
                             
                             yesalpha,noalpha){
   
-  if(length(rowAijsum)==1){
-    singlerowAijsum = rowAijsum
+  if(length(rowaijsum)==1){
+    singlerowaijsum = rowaijsum
   }
   else{
-    singlerowAijsum = rowAijsum[singlegene]
+    singlerowaijsum = rowaijsum[singlegene]
   }
   
   useaijvec = updateaijmat[singlegene,]
-  if(singlerowAijsum==0){
+  if(singlerowaijsum==0){
     temp = statdiff[,singlegene]
     lny =  temp[1]*yesalpha + temp[2]*noalpha
   }
@@ -232,19 +231,16 @@ singleLikelihood = function(singlegene,updateaijmat,updatedelta,updatebeta,
   return(lny)
 }
 
-
-
-
 # (6) singleDelta --------------------------------------------------------
-singleDelta = function(singleDelta,i_iter,j_iter,updateaijmat,updatedelta,updatebeta,
+singleDelta = function(singledelta,i_iter,j_iter,updateaijmat,updatedelta,updatebeta,
                           
                           GoalDataset,InfoDataset,statdiff,allchooserow,allstartrow,
                           
                           genename,genenum,lastvaluelist,oldcell,oldtime,eachdelta,
                           
-                          newallhash,singlerowAijsum,yesalpha,noalpha){
+                          newallhash,singlerowaijsum,yesalpha,noalpha){
   
-  updatedelta[i_iter,j_iter] = singleDelta
+  updatedelta[i_iter,j_iter] = singledelta
   
   thisprob = singleLikelihood(i_iter,updateaijmat,updatedelta,updatebeta,
                               
@@ -254,13 +250,12 @@ singleDelta = function(singleDelta,i_iter,j_iter,updateaijmat,updatedelta,update
                               
                               oldcell,oldtime,eachdelta,
                               
-                              newallhash,singlerowAijsum,
+                              newallhash,singlerowaijsum,
                               
                               yesalpha,noalpha)
   
   return(thisprob)
 }
-
 
 # (7) newTwoProb ---------------------------------------------------------
 newTwoProb = function(newaij,alldelta,updateaijmat,updatedelta,updatebeta,
@@ -279,7 +274,7 @@ newTwoProb = function(newaij,alldelta,updateaijmat,updatedelta,updatebeta,
 
   if(newaij == 0){
     updateaijmat[i_iter,j_iter] = 0
-    singlerowAijsum = sum(abs(updateaijmat[i_iter,]))
+    singlerowaijsum = sum(abs(updateaijmat[i_iter,]))
     allprob = singleLikelihood(i_iter,updateaijmat,updatedelta,updatebeta,
                                
                                GoalDataset,InfoDataset,statdiff,allchooserow,allstartrow,
@@ -288,21 +283,21 @@ newTwoProb = function(newaij,alldelta,updateaijmat,updatedelta,updatebeta,
                                
                                oldcell,oldtime,eachdelta,
                                
-                               newallhash,singlerowAijsum,
+                               newallhash,singlerowaijsum,
                                
                                yesalpha,noalpha)
     return(allprob +invAijPrior(updateaijmat,alllogprior,genenum)+ logzerodelta)
   }
   else{
     updateaijmat[i_iter,j_iter] = newaij
-    singlerowAijsum = 1
+    singlerowaijsum = 1
     allprob = sapply(alldelta,singleDelta,i_iter,j_iter,updateaijmat,updatedelta,updatebeta,
                      
                      GoalDataset,InfoDataset,statdiff,allchooserow,allstartrow,
                      
                      genename,genenum,lastvaluelist,oldcell,oldtime,eachdelta,
                      
-                     newallhash,singlerowAijsum,yesalpha,noalpha)
+                     newallhash,singlerowaijsum,yesalpha,noalpha)
     return(allprob+invAijPrior(updateaijmat,alllogprior,genenum)+ logdelta)
   }
 }
@@ -338,7 +333,7 @@ rowAij = function(i_iter,newaijindex,allaij,alldelta,updateaijmat,updatedelta,up
     
     updatedelta[i_iter,j_iter] = allnewtwo[choosenum,2]
   }
-  templist = list(rowAij = updateaijmat[i_iter,],
+  templist = list(rowaij = updateaijmat[i_iter,],
                   rowdelta = updatedelta[i_iter,])
   return(templist)
 }
@@ -388,7 +383,7 @@ piBeta = function(beta,updateaijmat,updatedelta,
                      
                      genenum,lastvaluelist,yesalpha,noalpha){
   
-  rowAijsum = apply(abs(updateaijmat),1,sum)
+  rowaijsum = apply(abs(updateaijmat),1,sum)
   
   allprob = sum(sapply(1:genenum,singleLikelihood,updateaijmat,updatedelta,beta,
                        
@@ -396,7 +391,7 @@ piBeta = function(beta,updateaijmat,updatedelta,
                        
                        oldcell,oldtime,eachdelta,
                        
-                       newallhash,rowAijsum,
+                       newallhash,rowaijsum,
                        
                        yesalpha,noalpha))
   
@@ -461,7 +456,7 @@ piAlpha = function(alpha,updateaijmat,updatedelta,updatebeta,
   
   yesalpha = log(1/(1+exp(-alpha)))
   noalpha = log(1/(1+exp(alpha)))
-  rowAijsum = apply(abs(updateaijmat),1,sum)
+  rowaijsum = apply(abs(updateaijmat),1,sum)
   
   allprob = sum(sapply(1:genenum,singleLikelihood,updateaijmat,updatedelta,updatebeta,
                        
@@ -469,7 +464,7 @@ piAlpha = function(alpha,updateaijmat,updatedelta,updatebeta,
                        
                        oldcell,oldtime,eachdelta,
                        
-                       newallhash,rowAijsum,
+                       newallhash,rowaijsum,
                        
                        yesalpha,noalpha))
   
@@ -582,6 +577,7 @@ updateKa = function(updateka,kasd,updateaijmat,genenum){
   }
 }
 
+
 # (18) postProb -----------------------------------------------------------
 postProb = function(updateaijmat,updatedelta,updatebeta,updatealpha,
                         updatelambda,updateka,GoalDataset,InfoDataset,
@@ -590,220 +586,31 @@ postProb = function(updateaijmat,updatedelta,updatebeta,updatealpha,
                         maxdelta,eachdelta,alllogprior,newallhash,
                         yesalpha,noalpha){
   
-  allrowAijsum = apply(abs(updateaijmat),1,sum)
-  
+  allrowaijsum = apply(abs(updateaijmat),1,sum)
+    
   likelihood_prob = sum(sapply(1:genenum,singleLikelihood,updateaijmat,updatedelta,updatebeta,
                                
                                GoalDataset,InfoDataset,statdiff,allchooserow,allstartrow,genename,genenum,lastvaluelist,
                                
                                oldcell,oldtime,eachdelta,
                                
-                               newallhash,allrowAijsum,
+                               newallhash,allrowaijsum,
                                
                                yesalpha,noalpha))
   
   aijmat_prob = invAijPrior(updateaijmat,alllogprior,genenum)
 
-  delta_prob = InvDeltaPrior(updatedelta,updateaijmat,genenum)
-  
-  beta_prob = dgamma(updatebeta,shape =100,rate = 100,log = T)
-  
-  alpha_prob = dgamma(updatealpha,shape =1,rate = 10,log = T)
-  
-  lambda_prob = dgamma(updatelambda,shape = 490,rate= 70,log = T)
-  
-  ka_prob = dbeta(updateka,shape1 = 24,shape2= 6,log = T)
-  
-  allprob = likelihood_prob+aijmat_prob+delta_prob+beta_prob+alpha_prob+lambda_prob+ka_prob
-  return(allprob)
-}
+  delta_prob = invDeltaPrior(updatedelta,updateaijmat,genenum)
 
-# (19) realMCMC -----------------------------------------------------------
-realMCMC = function(subtree,p=1,mcmcnum=5,num_maxiters=20000,iters=500,
-                    betasd=0.1,alphasd=0.1,lambdasd=0.1,kasd=0.01,maxdelta_time,realpath,realresultpath){
-  load(file=paste(realpath,subtree,"_simu_info.RData",sep=""))
-  Mc = simu_info$Mc
-  eachdelta = 1/(round(Mc)-1)
-  maxdelta = maxdelta_time*eachdelta
-  load(paste(realpath,"mer_",subtree,"_",maxdelta_time,"_allchooserow.RData",sep=""))
-  load(paste(realpath,"mer_",subtree,"_",maxdelta_time,"_allstartrow.RData",sep=""))
-  load(paste(realpath,"mer_",subtree,"_",maxdelta_time,"_origenehash.RData",sep=""))
-  newdata = read_csv(file=paste(realpath,"mer_",subtree,"_",maxdelta_time,"_selectdata.csv",sep=""),show_col_types = FALSE)
-  finalinfo = newdata[,1:6]
-  finaldata = newdata[,-c(1:6)]
-  oldtime = finalinfo$time
-  oldcell = finalinfo$cell
-  selectgene = names(finaldata)
-  genenum = length(selectgene)
-  aijindexlist = lapply(1:genenum,function(x,genenum) list=setdiff(1:genenum,x),genenum)
-  names(aijindexlist) = selectgene
-  load(file=paste(realpath,"mer_",subtree,"_newaijindex_",p,"_.RData",sep=""))
-  load(paste(realpath,"mer_",subtree,"_",p,"_diff",".RData",sep=""))
-  load(paste(realpath,subtree,"_",p,"_lastvaluelist.RData",sep=""))
-  finaldata = map_dfc(finaldata,function(x) replace_na(x,0))
-  alliters = 0
-  firstsinglemcmc = function(i,p,genenum,lastvaluelist,iters,selectgene,newallhash,aijindexlist,
-                             
-                             finaldata,finalinfo,statdiff,allchooserow,allstartrow,newaijindex,
-                             
-                             betasd,alphasd,lambdasd,kasd,maxdelta,eachdelta){
-    set.seed(p+i)
-    updatebeta = rgamma(1,shape = 100,rate =100)
-    updatealpha = rgamma(1,shape = 1,rate  = 10)
-    updatelambda = rgamma(1,shape =490,rate= 70)
-    updateka = rbeta(1,shape1 =24,shape2= 6)
-    
-    aijmat = geneAij(genenum,updatelambda,updateka,aijindexlist)
-    updateaijmat = aijmat[,-(genenum+1)]
-    for(j in 1:nrow(updateaijmat)){
-      zeroindex = setdiff(aijindexlist[[j]],newaijindex[[j]])
-      updateaijmat[j,zeroindex] = 0
-    }
-    updatedelta = geneDelta(updateaijmat,maxdelta,eachdelta,genenum)
-    
-    chainresult = mainMCMC(iters,genenum,selectgene,lastvaluelist,newallhash,
-                           
-                           finaldata,finalinfo,statdiff,allchooserow,allstartrow,newaijindex,
-                           
-                           updateaijmat,updatebeta,updatealpha,updatelambda,updateka,updatedelta,
-                           
-                           betasd,alphasd,lambdasd,kasd,maxdelta,eachdelta)
-    
-    chain = chainresult[[1]]
-    prob = chainresult[[3]]
-    updateaijmat = matrix(chain[iters,1:(genenum^2)],genenum,genenum)
-    updatedelta = matrix(chain[iters,(genenum^2+1):(2*genenum^2)],genenum,genenum)
-    updatebeta = chain[iters,2*genenum^2+1]
-    updatealpha = chain[iters,2*genenum^2+2]
-    updatelambda = chain[iters,2*genenum^2+3]
-    updateka = chain[iters,2*genenum^2+4]
-    
-    tmpresult = list(chain = chain,
-                     prob = prob,
-                     updateaijmat = updateaijmat,
-                     updatedelta = updatedelta,
-                     updatebeta = updatebeta,
-                     updatealpha = updatealpha,
-                     updatelambda = updatelambda,
-                     updateka = updateka)
-    
-    return(tmpresult)
-  }
-  
-  allchain = list()
-  allprob = list()
-  allpara = list()
-  firstlist = sfLapply(1:mcmcnum,firstsinglemcmc,p,genenum,lastvaluelist,iters,selectgene,newallhash,aijindexlist,
-                       
-                       finaldata,finalinfo,statdiff,allchooserow,allstartrow,newaijindex,
-                       
-                       betasd,alphasd,lambdasd,kasd,maxdelta,eachdelta)
-  for(i in 1:mcmcnum){
-    thislist = firstlist[[i]]
-    chain = thislist[[1]]
-    thisprob = thislist[[2]]
-    allpara[[i]] = list(updateaijmat = thislist[[3]],
-                        updatedelta = thislist[[4]],
-                        updatebeta = thislist[[5]],
-                        updatealpha = thislist[[6]],
-                        updatelambda = thislist[[7]],
-                        updateka = thislist[[8]])
-    allchain[[i]] = sparseMatrix(i=1,j=1,x=1,dims=c(iters,2*genenum^2+4))
-    allchain[[i]][,1:(genenum^2)] = chain[,1:(genenum^2)]
-    allchain[[i]][,(genenum^2+1):(2*genenum^2)] = chain[,(genenum^2+1):(2*genenum^2)]
-    allchain[[i]][,2*genenum^2+1] = chain[,2*genenum^2+1]
-    allchain[[i]][,2*genenum^2+2] = chain[,2*genenum^2+2]
-    allchain[[i]][,2*genenum^2+3] = chain[,2*genenum^2+3]
-    allchain[[i]][,2*genenum^2+4] = chain[,2*genenum^2+4]
-    allprob[[i]] = thisprob
-  }
-  
-  save(allchain,file = paste(realresultpath,subtree,"_",p,"_result",".RData",sep=""))
-  save(allprob,file= paste(realresultpath,subtree,"_",p,"_allprob",".RData",sep=""))
-  choosepara = maxEstimate(allchain,allprob,genenum)
-  preaij = choosepara[[1]]
-  predelta = choosepara[[2]]
-  preparas = choosepara[[3]]
-  write.csv(preaij,file=paste(realresultpath,subtree,"_",p,"_preaij.csv",sep=""),row.names = F)
-  write.csv(predelta,file=paste(realresultpath,subtree,"_",p,"_predelta.csv",sep=""),row.names = F)
-  write.csv(preparas,file=paste(realresultpath,subtree,"_",p,"_preparas.csv",sep=""),row.names = F)
-  alliters = alliters+ iters
-  subchain = list()
-  eachsinglemcmc = function(i,p,allpara,genenum,lastvaluelist,iters,selectgene,newallhash,
-                            
-                            finaldata,finalinfo,statdiff,allchooserow,allstartrow,newaijindex,
-                            
-                            betasd,alphasd,lambdasd,kasd,maxdelta,eachdelta){
-    set.seed(p+i)
-    updatebeta = allpara[[i]][["updatebeta"]]
-    updatealpha = allpara[[i]][["updatealpha"]]
-    updatelambda = allpara[[i]][["updatelambda"]]
-    updateka = allpara[[i]][["updateka"]]
-    updateaijmat = allpara[[i]][["updateaijmat"]]
-    updatedelta = allpara[[i]][["updatedelta"]]
-    chainresult = mainMCMC(iters,genenum,selectgene,lastvaluelist,newallhash,
-                           
-                           finaldata,finalinfo,statdiff,allchooserow,allstartrow,newaijindex,
-                           
-                           updateaijmat,updatebeta,updatealpha,updatelambda,updateka,updatedelta,
-                           
-                           betasd,alphasd,lambdasd,kasd,maxdelta,eachdelta)
-    
-    chain = chainresult[[1]]
-    prob = chainresult[[3]]
-    updateaijmat = matrix(chain[iters,1:(genenum^2)],genenum,genenum)
-    updatedelta = matrix(chain[iters,(genenum^2+1):(2*genenum^2)],genenum,genenum)
-    updatebeta = chain[iters,2*genenum^2+1]
-    updatealpha = chain[iters,2*genenum^2+2]
-    updatelambda = chain[iters,2*genenum^2+3]
-    updateka = chain[iters,2*genenum^2+4]
-    tmpresult = list(chain = chain,
-                     prob = prob,
-                     updateaijmat = updateaijmat,
-                     updatedelta = updatedelta,
-                     updatebeta = updatebeta,
-                     updatealpha = updatealpha,
-                     updatelambda = updatelambda,
-                     updateka = updateka)
-    
-    return(tmpresult)
-  }
-  while(alliters<num_maxiters){
-    alliters = alliters+ iters
-    eachlist = sfLapply(1:mcmcnum,eachsinglemcmc,p,allpara,genenum,lastvaluelist,iters,selectgene,newallhash,
-                        
-                        finaldata,finalinfo,statdiff,allchooserow,allstartrow,newaijindex,
-                        
-                        betasd,alphasd,lambdasd,kasd,maxdelta,eachdelta)
-    for(i in 1:mcmcnum){
-      thislist = eachlist[[i]]
-      chain = thislist[[1]]
-      thisprob = thislist[[2]]
-      allpara[[i]] = list(updateaijmat = thislist[[3]],
-                          updatedelta = thislist[[4]],
-                          updatebeta = thislist[[5]],
-                          updatealpha = thislist[[6]],
-                          updatelambda = thislist[[7]],
-                          updateka = thislist[[8]])
-      subchain[[i]] = sparseMatrix(i=1,j=1,x=1,dims=c(iters,2*genenum^2+4))
-      subchain[[i]][,1:(genenum^2)] = chain[,1:(genenum^2)]
-      subchain[[i]][,(genenum^2+1):(2*genenum^2)] = chain[,(genenum^2+1):(2*genenum^2)]
-      subchain[[i]][,2*genenum^2+1] = chain[,2*genenum^2+1]
-      subchain[[i]][,2*genenum^2+2] = chain[,2*genenum^2+2]
-      subchain[[i]][,2*genenum^2+3] = chain[,2*genenum^2+3]
-      subchain[[i]][,2*genenum^2+4] = chain[,2*genenum^2+4]
-      allchain[[i]] = rbind(allchain[[i]],subchain[[i]])
-      allprob[[i]] = c(allprob[[i]],thisprob)
-    }
-    save(allchain,file = paste(realresultpath,subtree,"_",p,"_result",".RData",sep=""))
-    save(allprob,file= paste(realresultpath,subtree,"_",p,"_allprob",".RData",sep=""))
-    choosepara = maxEstimate(allchain,allprob,genenum)
-    preaij = choosepara[[1]]
-    predelta = choosepara[[2]]
-    preparas = choosepara[[3]]
-    write.csv(preaij,file=paste(realresultpath,subtree,"_",p,"_preaij.csv",sep=""),row.names = F)
-    write.csv(predelta,file=paste(realresultpath,subtree,"_",p,"_predelta.csv",sep=""),row.names = F)
-    write.csv(preparas,file=paste(realresultpath,subtree,"_",p,"_preparas.csv",sep=""),row.names = F)
-  }
+  beta_prob = dgamma(updatebeta,shape =100,rate = 100,log = T)
+
+  alpha_prob = dgamma(updatealpha,shape =1,rate = 10,log = T)
+
+  lambda_prob = dgamma(updatelambda,shape = 490,rate= 70,log = T)
+
+  ka_prob = dbeta(updateka,shape1 = 24,shape2= 6,log = T)
+  allprob = likelihood_prob+aijmat_prob+delta_prob+beta_prob+alpha_prob+lambda_prob+ka_prob
+  # allprob = likelihood_prob
+  return(allprob)
 }
 

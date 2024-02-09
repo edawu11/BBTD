@@ -28,8 +28,8 @@ invAijPrior = function(aijmat,alllogprior,genenum){
   return(sum(temp))
 }
 
-# (3) InvDeltaPrior -------------------------------------------------------
-InvDeltaPrior = function(updatedelta,updateaijmat,genenum){
+# (3) invDeltaPrior -------------------------------------------------------
+invDeltaPrior = function(updatedelta,updateaijmat,genenum){
   allaij = as.numeric(updateaijmat)
   alldelta = as.numeric(updatedelta)
   

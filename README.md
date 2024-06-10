@@ -8,7 +8,7 @@ All real and processed datasets involved in the paper can be downloaded from [Ze
 
 - **Check and Install Required R Packages**: Before running the tutorial, it is recommended to check and install all the required R packages. Please see `requirements.txt` for the list of dependencies.
 
-- **Run the Tutorial**: After preparing the R environment, researchers can follow the tutorial for data integration and BBTD reproducibility. Refer to `Tutorial.Rmd` for detailed instructions. Since running the processed data can be time-consuming, we recommend directly applying BBTD method based on the processed data which is saved in the `readydata` directory.
+- **Run the Tutorial**: After preparing the R environment, researchers can follow the tutorial to reproduce data integration and BBTD on real datasets. Refer to `Tutorial.Rmd` for detailed instructions. Since processing the raw data can be time-consuming, we recommend directly applying the BBTD method to the processed data available in the `readydata` directory.
 
 # License
 BBTD is licensed under the GNU General Public License v3.0.

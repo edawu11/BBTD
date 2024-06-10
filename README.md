@@ -1,6 +1,6 @@
 # BBTD
 Data and code for the paper: Reconstruction of gene regulatory networks for *Caenorhabditis elegans* using tree-shaped gene expression data.
-<img src="./figure/integration.jpg">
+
 # Data
 All real and processed datasets involved in the paper can be downloaded from [Zenodo](https://doi.org/10.5281/zenodo.11261241). Please download all the `.rar` files and decompress them. Place the decompressed folders and the `.csv` file in the data directory.
 

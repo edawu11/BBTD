@@ -2,7 +2,7 @@
 knit: (function(inputFile, encoding) {
   rmarkdown::render(inputFile, encoding = encoding, output_dir ="docs") })
 title: "Tutorial Document"
-author: "WU Yida"
+author: "Yida Wu"
 date: "`r format(Sys.Date())`"
 CJKmainfont: SimSun
 output: 
@@ -21,44 +21,37 @@ knitr::opts_chunk$set(
   fig.align="center", 
   out.width = "80%",
   message = FALSE,
-  warning = FALSE,
-  eval = FALSE)
+  warning = FALSE)
 ```
 
-This tutorial document is used to reproduce the results of **real data**.
+This tutorial document is used to reproduce the results of **Real data analysis**.
 
 # R package
+Load required R packages.
+
 ```{r}
-library(dplyr) # A Grammar of Data Manipulation
-library(tidyr) # Tidy Messy Data
-library(readr) # Read Rectangular Text Data
-library(stringr) # Simple, Consistent Wrappers for Common String Operations
-library(purrr) # Functional Programming Tools
-library(snowfall) # Easier Cluster Computing (Based on 'snow')
-library(Matrix) # Sparse and Dense Matrix Classes and Methods
-library(hash) # Full Featured Implementation of Hash Tables/Associative
-library(igraph) # Network Analysis and Visualization
-library(ggraph) # An Implementation of Grammar of Graphics for Graphs and Networks
-library(RColorBrewer) # ColorBrewer Palettes
-library(ggtext) # Improved Text Rendering Support for 'ggplot2'
-library(lemon) # Freshing Up your 'ggplot2' Plots
-library(ggpubr) # 'ggplot2' Based Publication Ready Plots
-library(caret) # Classification and Regression Training
-library(cowplot) # Streamlined Plot Theme and Plot Annotations for 'ggplot2'
+library(dplyr)
+library(tidyr)
+library(readr)
+library(stringr)
+library(purrr)
+library(snowfall)
+library(Matrix)
+library(hash)
+library(igraph)
+library(ggraph)
+library(RColorBrewer)
+library(ggtext)
+library(lemon)
+library(ggpubr)
+library(caret)
+library(cowplot)
 ```
 
 # Set parameters
 ```{r}
 allsubtree = c("AB","C","D","E","MS")
 maxdelta_time = 5
-theta = 0.05
-mcmcnum = 5
-num_maxiters = 20000
-iters = 500
-betasd = 0.1
-alphasd = 0.1
-lambdasd = 0.1
-kasd = 0.01
 ```
 
 # Set path
@@ -94,6 +87,8 @@ if(!dir.exists(simuresultmainpath)){
 ```{r}
 source("./code/dataIntegrationFun.R") # for data integration
 source("./code/preScreenFun.R") # for pre-screening process
+source("./code/mainMCMCFun.R") # for MCMC
+source("./code/pictureFun.R") # for Network visualization 
 ```
 
 # Data preparation and integration
@@ -140,8 +135,12 @@ for(numk in 1:5){
 
 # BBTD for real datasets
 ## Pre-screening process
+
+Apply pre-screening process to screen the $a_{ij}$.
+
 ```{r}
 p=1 # set seed
+theta = 0.05
 for(numk in 1:5){
   subtree = allsubtree[numk]
   realpath = paste(readypath,subtree,"/",sep="")
@@ -170,41 +169,28 @@ for(numk in 1:5){
 ```
 
 ## MCMC
+
+After performing the pre-screening process, MCMC algorithm is implemented with five
+independent MCMC chains (5 cpu cores) for each subtree.
+
 ```{r}
 p=1 # set seed
-subtree = "AB" #"C","D","E","MS"
+subtree = "D" 
+#"C","D","E","MS"
+mcmcnum = 5
+num_maxiters = 8
+iters = 4
+betasd = 0.1
+alphasd = 0.1
+lambdasd = 0.1
+kasd = 0.01
 realpath = paste(readypath,subtree,"/",sep="")
-realresultpath = paste("./real_result/",subtree,"/",sep="")
-sfInit(parallel = TRUE, cpus = mcmcnum)
-sfLibrary(hash)
-sfLibrary(truncnorm)
-sfLibrary(Matrix)
-sfLibrary(dplyr)
-sfLibrary(tidyr)
-sfLibrary(readr)
-sfLibrary(stringr)
-sfLibrary(purrr)
-sfSource("./code/mainMCMCFun.R")
-sfSource("./code/priorsFun.R")
-sfSource("./code/estimateFun.R")
+realresultpath = paste(realresultmainpath,subtree,"/",sep="")
 realMCMC(subtree,p,mcmcnum,num_maxiters,iters,betasd,alphasd,lambdasd,kasd,maxdelta_time,realpath,realresultpath)
-sfStop()
 ```
 
 ## Network visualization
-After running the below code, we can get Fiture 5 in the paper.
+After running the below code, we can get Figure 5 in the paper, which is saved in `figurepath`.
 ```{r}
-p=1 # set seed
-for(numk in 1:5){
-  subtree = allsubtree[numk]
-  thisindex = allindex[numk]
-  connect = allrelationfun(subtree,p,realpath,realresultpath)
-  assign(paste("g",numk,sep=""),networkFun(subtree,connect,maxdelta_time,realpath) +theme(legend.position = "none"))
-}
-legend = g_legend(g1 + theme(legend.position='right'))
-plot_grid(g1,g2,g3,g4,g5,legend,labels = c('(a)','(b)','(c)','(d)','(e)'),nrow=2,label_size=14,hjust=0,scale=1)
-ggsave(file = paste("./figure/network.pdf",sep=""),
-       width = 240,
-       height = 180,
-       units = "mm")
+multiNetFun(allsubtree,p,maxdelta_time,readypath,realresultmainpath,figurepath)
 ```

@@ -178,8 +178,8 @@ p=1 # set seed
 subtree = "D" 
 #"C","D","E","MS"
 mcmcnum = 5
-num_maxiters = 8
-iters = 4
+num_maxiters = 20000
+iters = 500
 betasd = 0.1
 alphasd = 0.1
 lambdasd = 0.1

@@ -2,7 +2,7 @@
 Data and code for the paper: Reconstruction of gene regulatory networks for *Caenorhabditis elegans* using tree-shaped gene expression data.
 
 # Data
-All real and processed datasets involved in the paper can be downloaded from [Zenodo](https://doi.org/10.5281/zenodo.11261241). Please download all the `.rar` files and decompress them. Place the decompressed folders and the `.csv` file in the data directory.
+All real and processed datasets involved in the paper can be downloaded from [Zenodo](https://doi.org/10.5281/zenodo.11261241). Please download all the `.rar` files and decompress them. Place the decompressed folders and the `.csv` file in the data folder (Researchers should create it at the root path by themselves).
 
 # Tutorial
 

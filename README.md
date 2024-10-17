@@ -14,7 +14,7 @@ All real and processed datasets involved in the paper can be downloaded from [Ze
 BBTD is licensed under the GNU General Public License v3.0.
 
 # Reference
-Yida Wu, Da Zhou, Jie Hu (2024). Reconstruction of gene regulatory networks for *Caenorhabditis elegans* using tree-shaped gene expression data.
+Wu Y, Zhou D, Hu J. Reconstruction of gene regulatory networks for *Caenorhabditis elegans* using tree-shaped gene expression data[J]. Briefings in Bioinformatics, 2024, 25(5).
 
 # Contact
 For any questions about BBTD, please contact the corresponding author, [Prof. Jie Hu](https://math.xmu.edu.cn/info/1088/11858.htm) via email at [hujiechelsea@xmu.edu.cn](hujiechelsea@xmu.edu.cn).
